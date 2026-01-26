@@ -57,3 +57,9 @@ A secure and real-time Android Note-Taking application built with Kotlin and Fir
         ◦ androidx.constraintlayout: For responsive layouts.
         ◦ androidx.core-splashscreen: For the splash screen.
         ◦ ViewBinding: For interacting with views safely.
+
+🔑 Firebase Setup
+
+SHA-1: 1D:9B:A2:FF:CA:D8:7E:54:D9:72:4D:69:CD:93:A5:C2:CC:27:37:C5
+
+SHA-256: 37:D0:40:76:FF:F9:D7:B4:BD:6B:55:44:C4:35:51:A3:2E:C2:44:AA:9A:BD:CE:44:32:3A:CA:E3:6E:F9:4D:9F

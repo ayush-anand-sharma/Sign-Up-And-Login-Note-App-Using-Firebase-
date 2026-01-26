@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -14,7 +16,7 @@ android {
 
     defaultConfig {
         applicationId = "com.ayushcodes.signupandloginusingfirebase"
-        minSdk = 36
+        minSdk = 23
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -61,5 +63,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     //noinspection UseTomlInstead
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("androidx.core:core-splashscreen:1.2.0")
 }
