@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "323079493025",
+    "firebase_url": "https://login-signup-with-fireba-a1373-default-rtdb.firebaseio.com",
+    "project_id": "login-signup-with-fireba-a1373",
+    "storage_bucket": "login-signup-with-fireba-a1373.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:323079493025:android:6f38021bf5749d93e4e7e0",
+        "android_client_info": {
+          "package_name": "com.ayushcodes.signupandloginusingfirebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "323079493025-4v5n33gipceu960nsgri7vi6qotcuoaa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ayushcodes.signupandloginusingfirebase",
+            "certificate_hash": "bc5fcaebbbb040d384c49adeb7ba7a780042208e"
+          }
+        },
+        {
+          "client_id": "323079493025-c5c3mqs2qkh6oehos9qehcpfv5220kr7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8gI0OOA0yUSgFgMQSvcHxKUCoungYEso"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "323079493025-c5c3mqs2qkh6oehos9qehcpfv5220kr7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
