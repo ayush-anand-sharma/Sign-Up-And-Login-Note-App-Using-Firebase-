@@ -18,4 +18,9 @@
     <color name="text_on_button_dark">#FFFFFFFF</color>
     <color name="screen_background">#FFFFFF</color>
     <color name="input_field_background">#FFFFFF</color>
+
+    <!-- new colors -->
+    <color name="neon_blue">#00FFFF</color>
+    <color name="bright_red">#FF0000</color>
+    <color name="dark_background">#363636</color>
 </resources>
