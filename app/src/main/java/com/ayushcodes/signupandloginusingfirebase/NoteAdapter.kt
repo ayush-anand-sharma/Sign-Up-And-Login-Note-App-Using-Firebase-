@@ -28,7 +28,7 @@ class NoteAdapter(private var notes: List<NoteItem>, private val itemClickListen
     {
         val note = notes[position]
         holder.bind(note)
-        holder.binding.updateButton.setOnClickListener {
+        holder.binding.editButton.setOnClickListener {
             itemClickListener.onUpdateClick(note.noteID, note.title, note.description)
         }
         holder.binding.deleteButton.setOnClickListener {

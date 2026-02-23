@@ -27,9 +27,6 @@ class MainActivity : AppCompatActivity() {
         binding.createNoteButton.setOnClickListener {
             startActivity(Intent(this, AddNote::class.java))
         }
-        binding.openNoteButton.setOnClickListener {
-            startActivity(Intent(this, AllNotes::class.java))
-        }
         binding.signOutButton.setOnClickListener{
             auth.signOut()
             Toast.makeText(this,"Signing Out...", Toast.LENGTH_SHORT).show()

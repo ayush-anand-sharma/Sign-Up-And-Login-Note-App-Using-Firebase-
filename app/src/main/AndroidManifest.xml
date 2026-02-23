@@ -13,10 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SignUpAndLoginUsingFirebase">
         <activity
-            android:name=".AllNotes"
-            android:exported="true"
-            android:theme="@style/SplashApi" />
-        <activity
             android:name=".AddNote"
             android:exported="true"
             android:theme="@style/SplashApi" />

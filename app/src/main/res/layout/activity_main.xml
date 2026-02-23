@@ -9,31 +9,16 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/openNoteButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="68dp"
-        android:backgroundTint="@color/button_dark"
-        android:text="Open All Notes"
-        android:textColor="@color/text_on_button_dark"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/createNoteButton"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="HardcodedText" />
-
-    <Button
         android:id="@+id/createNoteButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="68dp"
         android:backgroundTint="@color/button_red"
         android:text="Create New Note"
         android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="@+id/openNoteButton"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/openNoteButton"
-        app:layout_constraintTop_toTopOf="@+id/openNoteButton"
+        app:layout_constraintStart_toStartOf="parent"
         tools:ignore="HardcodedText,TextContrastCheck" />
 
     <Button
