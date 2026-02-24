@@ -8,7 +8,9 @@ import android.os.Bundle // Imports the Bundle class, used for passing data betw
 import android.text.InputType // Imports the InputType class, used to specify the type of content in a text field.
 import android.util.Patterns // Imports the Patterns class, which contains pre-defined validation patterns.
 import android.widget.Toast // Imports the Toast class, used to display short notifications to the user.
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge // Imports the enableEdgeToEdge function, which enables edge-to-edge display.
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity // Imports the AppCompatActivity class, a base class for activities that use the support library action bar features.
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen // Imports the installSplashScreen function, used to show a splash screen.
 import com.ayushcodes.signupandloginusingfirebase.databinding.ActivitySignInPageBinding // Imports the generated binding class for the activity_sign_in_page.xml layout.
@@ -93,6 +95,23 @@ class SignInPage : AppCompatActivity() { // Defines the SignInPage class, which 
             }
             passwordEditText.setSelection(passwordEditText.text.length) // Moves the cursor to the end of the text.
         }
+
+        val callback = object : OnBackPressedCallback(true) { // Creates a callback for handling the back button press.
+            override fun handleOnBackPressed() { // This method is called when the back button is pressed.
+                AlertDialog.Builder(this@SignInPage) // Creates a new alert dialog builder.
+                    .setTitle("Exit Application") // Sets the title of the dialog.
+                    .setMessage("Are you sure you want to close the application?") // Sets the message of the dialog.
+                    .setPositiveButton("Confirm") { _, _ -> // Sets the positive button and its click listener.
+                        finishAffinity() // Finishes this activity and all activities immediately below it in the current task.
+                    }
+                    .setNegativeButton("Cancel") { dialog, _ -> // Sets the negative button and its click listener.
+                        dialog.dismiss() // Dismisses the dialog.
+                    }
+                    .create() // Creates the alert dialog.
+                    .show() // Shows the alert dialog.
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, callback) // Adds the callback to the OnBackPressedDispatcher.
     }
 
     private fun isNetworkAvailable(): Boolean { // A function to check if the network is available.
