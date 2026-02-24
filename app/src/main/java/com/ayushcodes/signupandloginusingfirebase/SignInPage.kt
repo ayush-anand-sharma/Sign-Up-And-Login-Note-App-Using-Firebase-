@@ -44,36 +44,53 @@ class SignInPage : AppCompatActivity() { // Defines the SignInPage class, which 
 
         auth = FirebaseAuth.getInstance() // Initializes the FirebaseAuth instance.
 
+        binding.forgotPassword.setOnClickListener { // Sets a click listener on the forgot password text view.
+            startActivity(Intent(this, ForgetPassword::class.java)) // Starts the ForgetPassword activity.
+        }
+
         binding.logInButton.setOnClickListener { // Sets a click listener on the login button.
             if (!isNetworkAvailable()) { // Checks if the network is available.
                 Toast.makeText(this, "Network Connection Error.", Toast.LENGTH_SHORT).show() // Shows a toast message if the network is not available.
                 return@setOnClickListener // Exits the click listener.
             }
-            val username = binding.usernameText.text.toString() // Gets the username from the text field.
+            val email = binding.usernameText.text.toString() // Gets the username from the text field.
             val password = binding.passwordText.text.toString() // Gets the password from the text field.
 
-            if (username.isEmpty() || password.isEmpty()) { // If the username or password fields are empty,
+            if (email.isEmpty() || password.isEmpty()) { // If the username or password fields are empty,
                 Toast.makeText(this, "Please enter your username and password", Toast.LENGTH_SHORT).show() // shows a toast message.
-            } else if (!Patterns.EMAIL_ADDRESS.matcher(username).matches()) { // If the email format is invalid,
+            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) { // If the email format is invalid,
                 Toast.makeText(this, "Please enter a valid email", Toast.LENGTH_SHORT).show() // shows a toast message.
             } else { // Otherwise,
-                auth.signInWithEmailAndPassword(username, password) // signs in the user with their email and password.
-                    .addOnCompleteListener(this) { task -> // Adds a listener that is called when the task completes.
-                        if (task.isSuccessful) { // If the sign-in is successful,
-                            Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show() // shows a success message,
-                            startActivity(Intent(this, MainActivity::class.java)) // starts the MainActivity,
-                            finish() // and finishes the current activity.
-                        } else { // If the sign-in fails,
-                            val exception = task.exception // Gets the exception from the task.
-                            val errorMessage = when (exception) { // Determines the error message based on the exception type.
-                                is FirebaseAuthInvalidUserException, is FirebaseAuthInvalidCredentialsException -> "Your email or password is incorrect."
-                                else -> "Login Failed: ${exception?.message}"
+                auth.fetchSignInMethodsForEmail(email)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val isNewUser = task.result?.signInMethods?.isEmpty() ?: true
+                            if (isNewUser) {
+                                Toast.makeText(this, "This email is not registered on this application", Toast.LENGTH_SHORT).show()
+                            } else {
+                                auth.signInWithEmailAndPassword(email, password) // signs in the user with their email and password.
+                                    .addOnCompleteListener(this) { signInTask -> // Adds a listener that is called when the task completes.
+                                        if (signInTask.isSuccessful) { // If the sign-in is successful,
+                                            Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show() // shows a success message,
+                                            startActivity(Intent(this, MainActivity::class.java)) // starts the MainActivity,
+                                            finish() // and finishes the current activity.
+                                        } else { // If the sign-in fails,
+                                            val exception = signInTask.exception // Gets the exception from the task.
+                                            val errorMessage = when (exception) { // Determines the error message based on the exception type.
+                                                is FirebaseAuthInvalidCredentialsException -> "Your email or password is incorrect."
+                                                else -> "Login Failed: ${exception?.message}"
+                                            }
+                                            Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show() // shows an error message.
+                                        }
+                                    }
                             }
-                            Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show() // shows an error message.
+                        } else {
+                            Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
             }
         }
+
         binding.signUpButton.setOnClickListener { // Sets a click listener on the sign-up button.
             if (!isNetworkAvailable()) { // Checks if the network is available.
                 Toast.makeText(this, "Network Connection Error.", Toast.LENGTH_SHORT).show() // Shows a toast message if the network is not available.
