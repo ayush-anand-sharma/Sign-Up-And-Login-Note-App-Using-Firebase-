@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
-    tools:context=".AddNote">
+    tools:context=".EditNote">
 
     <ImageView
         android:id="@+id/backButton"
@@ -21,12 +21,12 @@
         app:tint="@android:color/white" />
 
     <TextView
-        android:id="@+id/addNoteTextView"
+        android:id="@+id/editNoteTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="60dp"
         android:fontFamily="@font/kurale"
-        android:text="@string/add_note_header"
+        android:text="Edit Note"
         android:textColor="@android:color/white"
         android:textSize="34sp"
         android:textStyle="bold"
@@ -46,7 +46,7 @@
         android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addNoteTextView">
+        app:layout_constraintTop_toBottomOf="@+id/editNoteTextView">
 
         <EditText
             android:id="@+id/editTextTitle"
@@ -76,7 +76,7 @@
         android:background="@drawable/blue_border_background"
         android:orientation="horizontal"
         android:padding="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/saveNoteButton"
+        app:layout_constraintBottom_toTopOf="@+id/updateNoteButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout1">
@@ -94,14 +94,14 @@
             android:inputType="textMultiLine|textCapSentences"
             android:minHeight="48dp"
             android:textColor="@android:color/white"
-            android:textColorHint="@android:color/darker_gray"
+            android.textColorHint="@android:color/darker_gray"
             android:autofillHints=""
             tools:ignore="LabelFor" />
     </LinearLayout>
 
 
     <Button
-        android:id="@+id/saveNoteButton"
+        android:id="@+id/updateNoteButton"
         android:layout_width="0dp"
         android:layout_height="54dp"
         android:layout_marginStart="17dp"
@@ -109,9 +109,9 @@
         android:layout_marginBottom="32dp"
         android:backgroundTint="@android:color/holo_red_dark"
         android:fontFamily="@font/kurale"
-        android:text="@string/save_note_button"
+        android:text="Update Note"
         android:textColor="@android:color/white"
-        app:cornerRadius="30dp"
+        app:cornerRadius="27dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

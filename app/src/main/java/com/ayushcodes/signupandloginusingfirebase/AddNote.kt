@@ -1,59 +1,63 @@
-package com.ayushcodes.signupandloginusingfirebase
+package com.ayushcodes.signupandloginusingfirebase // Declares the package name for the class
 
-import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.ayushcodes.signupandloginusingfirebase.databinding.ActivityAddNoteBinding
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import android.os.Bundle // Imports the Bundle class for saving instance state
+import android.widget.Toast // Imports the Toast class for showing short messages
+import androidx.activity.enableEdgeToEdge // Imports the enableEdgeToEdge function for enabling edge-to-edge display
+import androidx.appcompat.app.AppCompatActivity // Imports the AppCompatActivity class for compatibility features
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen // Imports the installSplashScreen function for creating a splash screen
+import com.ayushcodes.signupandloginusingfirebase.databinding.ActivityAddNoteBinding // Imports the binding class for the activity_add_note.xml layout
+import com.google.firebase.auth.FirebaseAuth // Imports the FirebaseAuth class for user authentication
+import com.google.firebase.database.DatabaseReference // Imports the DatabaseReference class for interacting with the Firebase Realtime Database
+import com.google.firebase.database.FirebaseDatabase // Imports the FirebaseDatabase class for accessing the Firebase Realtime Database
+import java.text.SimpleDateFormat // Imports the SimpleDateFormat class for formatting dates
+import java.util.Date // Imports the Date class for representing a specific instant in time
+import java.util.Locale // Imports the Locale class for representing a specific geographical, political, or cultural region
 
-class AddNote : AppCompatActivity() {
-    private val binding: ActivityAddNoteBinding by lazy {
-        ActivityAddNoteBinding.inflate(layoutInflater)
+class AddNote : AppCompatActivity() { // Defines the AddNote activity, which inherits from AppCompatActivity
+    private val binding: ActivityAddNoteBinding by lazy { // Lazily initializes the view binding for the activity
+        ActivityAddNoteBinding.inflate(layoutInflater) // Inflates the layout for the activity
     }
 
-    private lateinit var databaseReference: DatabaseReference
-    private lateinit var auth: FirebaseAuth
+    private lateinit var databaseReference: DatabaseReference // Declares a lateinit variable for the Firebase Realtime Database reference
+    private lateinit var auth: FirebaseAuth // Declares a lateinit variable for the Firebase authentication instance
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        installSplashScreen()
-        enableEdgeToEdge()
-        setContentView(binding.root)
+    override fun onCreate(savedInstanceState: Bundle?) { // Overrides the onCreate method, which is called when the activity is first created
+        super.onCreate(savedInstanceState) // Calls the superclass's implementation of onCreate
+        installSplashScreen() // Installs a splash screen for the activity
+        enableEdgeToEdge() // Enables edge-to-edge display for the activity
+        setContentView(binding.root) // Sets the content view of the activity to the root of the binding
 
-        databaseReference = FirebaseDatabase.getInstance().reference
-        auth = FirebaseAuth.getInstance()
+        databaseReference = FirebaseDatabase.getInstance().reference // Initializes the database reference to the root of the Firebase Realtime Database
+        auth = FirebaseAuth.getInstance() // Initializes the FirebaseAuth instance
 
-        binding.saveNoteButton.setOnClickListener {
+        binding.saveNoteButton.setOnClickListener { // Sets an OnClickListener for the save note button
 
-            val title = binding.editTextTitle.text.toString()
-            val description = binding.editTextDescription.text.toString()
+            val title = binding.editTextTitle.text.toString() // Gets the text from the title EditText and converts it to a string
+            val description = binding.editTextDescription.text.toString() // Gets the text from the description EditText and converts it to a string
+            val date = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date()) // Gets the current date and formats it as "dd-MM-yyyy"
 
-            if (title.isEmpty() && description.isEmpty()) {
-                Toast.makeText(this, "Please Enter Your Title and Description", Toast.LENGTH_SHORT)
-                    .show()
-            } else {
-                val currentUser = auth.currentUser
-                currentUser?.let { user ->
-                    val notekey: String? =
-                        databaseReference.child("users").child(user.uid).child("notes").push().key
+            if (title.isEmpty() && description.isEmpty()) { // Checks if both the title and description are empty
+                Toast.makeText(this, "Please Enter Your Title and Description", Toast.LENGTH_SHORT) // Shows a toast message asking the user to enter a title and description
+                    .show() // Displays the toast message
+            } else { // If either the title or description is not empty
+                val currentUser = auth.currentUser // Gets the currently signed-in user
+                currentUser?.let { user -> // If a user is signed in
+                    val notekey: String? = // Generates a unique key for the new note
+                        databaseReference.child("Users").child(user.uid).child("Notes").push().key // Creates a new child node under "Users/{userId}/Notes" and gets its key
 
-                    val noteItem = NoteItem(title, description, notekey?:"")
+                    val noteItem = NoteItem(title, description, notekey?:"", date) // Creates a new NoteItem with the title, description, note key, and date
 
-                    if (notekey != null) {
-                        databaseReference.child("users").child(user.uid).child("notes")
-                            .child(notekey).setValue(noteItem)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    Toast.makeText(this, "Note Save Successful", Toast.LENGTH_SHORT)
-                                        .show()
-                                    finish()
-                                } else {
-                                    Toast.makeText(this, "Failed To Save Note", Toast.LENGTH_SHORT)
-                                        .show()
+                    if (notekey != null) { // If a unique key was successfully generated
+                        databaseReference.child("Users").child(user.uid).child("Notes") // Gets a reference to the "Notes" node for the current user
+                            .child(notekey).setValue(noteItem) // Sets the value of the new note to the NoteItem object
+                            .addOnCompleteListener { task -> // Adds a listener that is called when the operation is complete
+                                if (task.isSuccessful) { // If the note was saved successfully
+                                    Toast.makeText(this, "Note Save Successful", Toast.LENGTH_SHORT) // Shows a toast message indicating that the note was saved successfully
+                                        .show() // Displays the toast message
+                                    finish() // Finishes the activity
+                                } else { // If the note failed to save
+                                    Toast.makeText(this, "Failed To Save Note", Toast.LENGTH_SHORT) // Shows a toast message indicating that the note failed to save
+                                        .show() // Displays the toast message
                                 }
                             }
                     }

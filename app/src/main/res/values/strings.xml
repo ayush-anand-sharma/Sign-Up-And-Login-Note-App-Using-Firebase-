@@ -4,4 +4,9 @@
     <string name="app_name_on_welcome">Note App</string>
     <string name="design_by_ayush">Design by Ayush</string>
     <string name="app_logo_description">Application Logo</string>
+    <string name="add_note_header">Add Note</string>
+    <string name="title_hint">Title</string>
+    <string name="description_hint">Description</string>
+    <string name="save_note_button">Save Note</string>
+    <string name="back_button_description">Back</string>
 </resources>
