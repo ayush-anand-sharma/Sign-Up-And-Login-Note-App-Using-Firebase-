@@ -1,6 +1,9 @@
 package com.ayushcodes.signupandloginusingfirebase
 
+import android.content.Context // Imports the Context class, which provides access to application-specific resources and classes.
 import android.content.Intent // Imports the Intent class, used to start new activities.
+import android.net.ConnectivityManager // Imports the ConnectivityManager class, which provides information about network connectivity.
+import android.net.NetworkCapabilities // Imports the NetworkCapabilities class, which describes the properties of a network.
 import android.os.Bundle // Imports the Bundle class, used for passing data between activities.
 import android.util.Patterns // Imports the Patterns class, which contains pre-defined validation patterns.
 import android.widget.Toast // Imports the Toast class, used to display short notifications to the user.
@@ -29,6 +32,10 @@ class ForgetPassword : AppCompatActivity() { // Defines the ForgetPassword class
         }
 
         binding.sendLinkButton.setOnClickListener { // Sets a click listener on the send link button.
+            if (!isNetworkAvailable()) { // Checks for network connectivity.
+                Toast.makeText(this, "Network Connection Error.", Toast.LENGTH_SHORT).show() // Shows a toast if no connection.
+                return@setOnClickListener // Returns from the listener.
+            }
             val email = binding.emailtext.text.toString() // Gets the email from the text field.
 
             if (email.isEmpty()) { // If the email field is empty,
@@ -75,5 +82,12 @@ class ForgetPassword : AppCompatActivity() { // Defines the ForgetPassword class
             startActivity(Intent(this, SignUpPage::class.java)) // Starts the SignUpPage activity.
             finish() // Finishes the current activity.
         }
+    }
+
+    private fun isNetworkAvailable(): Boolean { // Checks if a network connection is available.
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager // Gets the ConnectivityManager system service.
+        val network = connectivityManager.activeNetwork ?: return false // Gets the active network, or returns false if there is none.
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false // Gets the network capabilities, or returns false if they are unavailable.
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) // Returns true if the network has an internet connection, false otherwise.
     }
 }
