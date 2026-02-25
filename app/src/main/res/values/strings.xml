@@ -1,4 +1,7 @@
 <resources>
-    <string name="app_name">SignUp and Login Using Firebase</string>
+    <string name="app_name">Personal Notes</string>
     <string name="empty"></string>
+    <string name="app_name_on_welcome">Note App</string>
+    <string name="design_by_ayush">Design by Ayush</string>
+    <string name="app_logo_description">Application Logo</string>
 </resources>
