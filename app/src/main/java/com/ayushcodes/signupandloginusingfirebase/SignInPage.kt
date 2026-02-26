@@ -7,6 +7,8 @@ import android.net.NetworkCapabilities // Imports NetworkCapabilities to check f
 import android.os.Bundle // Imports the Bundle class, used for passing data between activities.
 import android.text.InputType // Imports the InputType class, used to specify the type of content in a text field.
 import android.util.Patterns // Imports the Patterns class, which contains pre-defined validation patterns.
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast // Imports the Toast class, used to display short notifications to the user.
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge // Imports the enableEdgeToEdge function, which enables edge-to-edge display.
@@ -61,31 +63,29 @@ class SignInPage : AppCompatActivity() { // Defines the SignInPage class, which 
             } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) { // If the email format is invalid,
                 Toast.makeText(this, "Please enter a valid email", Toast.LENGTH_SHORT).show() // shows a toast message.
             } else { // Otherwise,
-                auth.fetchSignInMethodsForEmail(email)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            val isNewUser = task.result?.signInMethods?.isEmpty() ?: true
-                            if (isNewUser) {
-                                Toast.makeText(this, "This email is not registered on this application", Toast.LENGTH_SHORT).show()
-                            } else {
-                                auth.signInWithEmailAndPassword(email, password) // signs in the user with their email and password.
-                                    .addOnCompleteListener(this) { signInTask -> // Adds a listener that is called when the task completes.
-                                        if (signInTask.isSuccessful) { // If the sign-in is successful,
-                                            Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show() // shows a success message,
-                                            startActivity(Intent(this, MainActivity::class.java)) // starts the MainActivity,
-                                            finish() // and finishes the current activity.
-                                        } else { // If the sign-in fails,
-                                            val exception = signInTask.exception // Gets the exception from the task.
-                                            val errorMessage = when (exception) { // Determines the error message based on the exception type.
-                                                is FirebaseAuthInvalidCredentialsException -> "Your email or password is incorrect."
-                                                else -> "Login Failed: ${exception?.message}"
-                                            }
-                                            Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show() // shows an error message.
-                                        }
-                                    }
+                showProgressBar(true)
+
+                // Attempts to sign in the user with the provided email and password.
+                auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this) { signInTask -> // Adds a listener that is called when the task completes.
+                        showProgressBar(false)
+
+                        if (signInTask.isSuccessful) { // If the sign-in is successful,
+                            Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show() // shows a success message,
+                            startActivity(Intent(this, MainActivity::class.java)) // starts the MainActivity,
+                            finish() // and finishes the current activity to prevent going back to it.
+                        } else { // If the sign-in fails,
+                            val exception = signInTask.exception // Gets the exception from the task to determine the cause of failure.
+                            // Determines the error message based on the type of exception.
+                            val errorMessage = when (exception) {
+                                // This case handles if the user does not exist in Firebase Authentication.
+                                is FirebaseAuthInvalidUserException -> "This email is not registered on this application"
+                                // This case handles if the password is incorrect for the given email.
+                                is FirebaseAuthInvalidCredentialsException -> "Your email or password is incorrect."
+                                // This handles other potential errors during sign-in.
+                                else -> "Login Failed: ${exception?.message}"
                             }
-                        } else {
-                            Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show() // shows an error message to the user.
                         }
                     }
             }
@@ -129,6 +129,28 @@ class SignInPage : AppCompatActivity() { // Defines the SignInPage class, which 
             }
         }
         onBackPressedDispatcher.addCallback(this, callback) // Adds the callback to the OnBackPressedDispatcher.
+    }
+
+    private fun showProgressBar(show: Boolean) {
+        if (show) {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.dimOverlay.visibility = View.VISIBLE
+            binding.logInButton.isEnabled = false
+            binding.signUpButton.isEnabled = false
+            binding.forgotPassword.isEnabled = false
+            hideKeyboard()
+        } else {
+            binding.progressBar.visibility = View.GONE
+            binding.dimOverlay.visibility = View.GONE
+            binding.logInButton.isEnabled = true
+            binding.signUpButton.isEnabled = true
+            binding.forgotPassword.isEnabled = true
+        }
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
     }
 
     private fun isNetworkAvailable(): Boolean { // A function to check if the network is available.

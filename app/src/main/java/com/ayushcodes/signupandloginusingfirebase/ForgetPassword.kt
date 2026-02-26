@@ -6,6 +6,8 @@ import android.net.ConnectivityManager // Imports the ConnectivityManager class,
 import android.net.NetworkCapabilities // Imports the NetworkCapabilities class, which describes the properties of a network.
 import android.os.Bundle // Imports the Bundle class, used for passing data between activities.
 import android.util.Patterns // Imports the Patterns class, which contains pre-defined validation patterns.
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast // Imports the Toast class, used to display short notifications to the user.
 import androidx.activity.enableEdgeToEdge // Imports the enableEdgeToEdge function, which enables edge-to-edge display.
 import androidx.appcompat.app.AlertDialog // Imports the AlertDialog class, used to show a dialog message.
@@ -43,8 +45,12 @@ class ForgetPassword : AppCompatActivity() { // Defines the ForgetPassword class
             } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) { // If the email format is invalid,
                 Toast.makeText(this, "Please enter a valid email", Toast.LENGTH_SHORT).show() // shows a toast message.
             } else { // Otherwise,
+                showProgressBar(true)
+
                 auth.fetchSignInMethodsForEmail(email) // Fetches the sign-in methods for the given email.
                     .addOnCompleteListener { task -> // Adds a listener that is called when the task completes.
+                        showProgressBar(false)
+
                         if (task.isSuccessful) { // If the fetch is successful,
                             val isNewUser = task.result?.signInMethods?.isEmpty() ?: true // Checks if the user is new.
                             if (isNewUser) { // If the user is new,
@@ -53,15 +59,20 @@ class ForgetPassword : AppCompatActivity() { // Defines the ForgetPassword class
                                 AlertDialog.Builder(this) // Creates a new alert dialog builder.
                                     .setTitle("Confirm Password Reset") // Sets the title of the dialog.
                                     .setMessage("Are you sure you want to send a password reset link to this email?") // Sets the message of the dialog.
-                                    .setPositiveButton("Confirm") { _, _ -> // Sets the positive button and its click listener.
+                                    .setPositiveButton("Confirm") { dialog, _ -> // Sets the positive button and its click listener.
+                                        showProgressBar(true)
+
                                         auth.sendPasswordResetEmail(email) // Sends a password reset email to the given email address.
-                                            .addOnCompleteListener { task -> // Adds a listener that is called when the task completes.
-                                                if (task.isSuccessful) { // If the email is sent successfully,
+                                            .addOnCompleteListener { sendTask -> // Adds a listener that is called when the task completes.
+                                                showProgressBar(false)
+
+                                                if (sendTask.isSuccessful) { // If the email is sent successfully,
                                                     Toast.makeText(this, "Password reset link sent to your email", Toast.LENGTH_SHORT).show() // shows a success message,
+                                                    dialog.dismiss() // Dismiss the dialog before finishing the activity
                                                     startActivity(Intent(this, SignInPage::class.java)) // starts the SignInPage,
                                                     finish() // and finishes the current activity.
                                                 } else { // If the email sending fails,
-                                                    Toast.makeText(this, "Failed to send reset link: ${task.exception?.message}", Toast.LENGTH_SHORT).show() // shows an error message.
+                                                    Toast.makeText(this, "Failed to send reset link: ${sendTask.exception?.message}", Toast.LENGTH_SHORT).show() // shows an error message.
                                                 }
                                             }
                                     }
@@ -82,6 +93,26 @@ class ForgetPassword : AppCompatActivity() { // Defines the ForgetPassword class
             startActivity(Intent(this, SignUpPage::class.java)) // Starts the SignUpPage activity.
             finish() // Finishes the current activity.
         }
+    }
+
+    private fun showProgressBar(show: Boolean) {
+        if (show) {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.dimOverlay.visibility = View.VISIBLE
+            binding.sendLinkButton.isEnabled = false
+            binding.registerText.isEnabled = false
+            hideKeyboard()
+        } else {
+            binding.progressBar.visibility = View.GONE
+            binding.dimOverlay.visibility = View.GONE
+            binding.sendLinkButton.isEnabled = true
+            binding.registerText.isEnabled = true
+        }
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
     }
 
     private fun isNetworkAvailable(): Boolean { // Checks if a network connection is available.

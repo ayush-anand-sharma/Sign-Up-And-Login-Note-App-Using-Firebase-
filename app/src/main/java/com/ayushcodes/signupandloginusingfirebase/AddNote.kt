@@ -30,6 +30,10 @@ class AddNote : AppCompatActivity() { // Defines the AddNote activity, which inh
         databaseReference = FirebaseDatabase.getInstance().reference // Initializes the database reference to the root of the Firebase Realtime Database
         auth = FirebaseAuth.getInstance() // Initializes the FirebaseAuth instance
 
+        binding.backButton.setOnClickListener { // Sets an OnClickListener for the back button
+            finish() // Finishes the activity
+        }
+
         binding.saveNoteButton.setOnClickListener { // Sets an OnClickListener for the save note button
 
             val title = binding.editTextTitle.text.toString() // Gets the text from the title EditText and converts it to a string
@@ -42,24 +46,27 @@ class AddNote : AppCompatActivity() { // Defines the AddNote activity, which inh
             } else { // If either the title or description is not empty
                 val currentUser = auth.currentUser // Gets the currently signed-in user
                 currentUser?.let { user -> // If a user is signed in
-                    val notekey: String? = // Generates a unique key for the new note
-                        databaseReference.child("Users").child(user.uid).child("Notes").push().key // Creates a new child node under "Users/{userId}/Notes" and gets its key
+                    // Generate a unique key for the new note.
+                    val noteKey = databaseReference.child("Users").child(user.uid).child("Notes").push().key
 
-                    val noteItem = NoteItem(title, description, notekey?:"", date) // Creates a new NoteItem with the title, description, note key, and date
+                    if (noteKey != null) { // If a unique key was successfully generated
+                        // Create a new NoteItem with the title, description, the generated key, and date.
+                        val noteItem = NoteItem(title, description, noteKey, date)
 
-                    if (notekey != null) { // If a unique key was successfully generated
-                        databaseReference.child("Users").child(user.uid).child("Notes") // Gets a reference to the "Notes" node for the current user
-                            .child(notekey).setValue(noteItem) // Sets the value of the new note to the NoteItem object
+                        // Get a reference to the new note's location in the database.
+                        databaseReference.child("Users").child(user.uid).child("Notes").child(noteKey)
+                            .setValue(noteItem) // Set the value of the new note to the NoteItem object.
                             .addOnCompleteListener { task -> // Adds a listener that is called when the operation is complete
                                 if (task.isSuccessful) { // If the note was saved successfully
-                                    Toast.makeText(this, "Note Save Successful", Toast.LENGTH_SHORT) // Shows a toast message indicating that the note was saved successfully
-                                        .show() // Displays the toast message
-                                    finish() // Finishes the activity
+                                    Toast.makeText(this, "Note Saved Successfully", Toast.LENGTH_SHORT).show() // Shows a toast message indicating success.
+                                    finish() // Finishes the activity.
                                 } else { // If the note failed to save
-                                    Toast.makeText(this, "Failed To Save Note", Toast.LENGTH_SHORT) // Shows a toast message indicating that the note failed to save
-                                        .show() // Displays the toast message
+                                    Toast.makeText(this, "Failed To Save Note", Toast.LENGTH_SHORT).show() // Shows a toast message indicating failure.
                                 }
                             }
+                    } else {
+                        // If for some reason the key is null, inform the user.
+                        Toast.makeText(this, "Failed to generate a unique ID for the note.", Toast.LENGTH_SHORT).show()
                     }
                 }
             }

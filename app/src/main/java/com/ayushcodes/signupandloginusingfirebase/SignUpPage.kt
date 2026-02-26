@@ -7,6 +7,8 @@ import android.net.NetworkCapabilities // Imports the NetworkCapabilities class,
 import android.os.Bundle // Imports the Bundle class, used for passing data between activities.
 import android.text.InputType // Imports the InputType class, used for defining the type of content in an EditText.
 import android.util.Patterns // Imports the Patterns class, which contains standard regular expressions.
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText // Imports the EditText class, a user interface element for entering and modifying text.
 import android.widget.ImageView // Imports the ImageView class, a user interface element for displaying images.
 import android.widget.Toast // Imports the Toast class, used to display short messages to the user.
@@ -64,18 +66,37 @@ class SignUpPage : AppCompatActivity() { // Defines the SignUpPage class, which 
             } else if (!isPasswordStrong(password)) { // Checks if the password is strong enough.
                 Toast.makeText(this, "Password must be at least 8 characters long and contain only letters and numbers.", Toast.LENGTH_LONG).show() // Shows a toast message if the password is not strong enough.
             } else {
+                showProgressBar(true)
+
                 // Creates a new user with the given email and password.
                 auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this) { task -> // Adds a completion listener to the task.
-                        if (task.isSuccessful) { // Checks if the task was successful.
+                        showProgressBar(false)
+
+                        if (task.isSuccessful) { // Checks if the auth task was successful.
                             val user = auth.currentUser // Gets the current user.
                             // Saves user data in the Realtime Database.
                             val userReference = database.reference.child("Users").child(user!!.uid) // Gets a reference to the user's data in the database.
                             val userData = hashMapOf("email" to email, "name" to name) // Creates a map of user data.
-                            userReference.setValue(userData) // Sets the user's data in the database.
-                            Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show() // Shows a toast message indicating successful registration.
-                            startActivity(Intent(this, SignInPage::class.java)) // Starts the SignInPage activity.
-                            finish() // Finishes the current activity.
+                            // Sets the user's data in the database and adds a completion listener.
+                            userReference.setValue(userData).addOnCompleteListener { databaseTask ->
+                                // This block is executed when the database write operation is complete.
+                                if (databaseTask.isSuccessful) {
+                                    // This block is executed if the data was successfully written to the database.
+                                    Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show() // Shows a toast message indicating successful registration.
+                                    startActivity(Intent(this, SignInPage::class.java)) // Starts the SignInPage activity.
+                                    finish() // Finishes the current activity.
+                                } else {
+                                    // This block is executed if the data failed to write to the database.
+                                    // We'll attempt to delete the user from Firebase Authentication to allow them to try again.
+                                    user.delete().addOnCompleteListener { deleteTask ->
+                                        if (deleteTask.isSuccessful){
+                                            // This toast informs the user that registration failed and they should try again.
+                                            Toast.makeText(this, "Registration failed, couldn't save user data. Please try again.", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }
+                            }
                         } else {
                             // Handles registration failure.
                             when (task.exception) { // Checks the type of exception that occurred.
@@ -111,6 +132,26 @@ class SignUpPage : AppCompatActivity() { // Defines the SignUpPage class, which 
             }
         }
         onBackPressedDispatcher.addCallback(this, callback) // Adds the callback to the OnBackPressedDispatcher.
+    }
+
+    private fun showProgressBar(show: Boolean) {
+        if (show) {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.dimOverlay.visibility = View.VISIBLE
+            binding.RegisterButton.isEnabled = false
+            binding.signInButton.isEnabled = false
+            hideKeyboard()
+        } else {
+            binding.progressBar.visibility = View.GONE
+            binding.dimOverlay.visibility = View.GONE
+            binding.RegisterButton.isEnabled = true
+            binding.signInButton.isEnabled = true
+        }
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
     }
 
     // Checks if the password is strong.

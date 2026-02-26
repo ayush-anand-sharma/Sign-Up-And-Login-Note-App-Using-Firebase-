@@ -1,5 +1,8 @@
 package com.ayushcodes.signupandloginusingfirebase // Declares the package name for the class
 
+import android.content.Context // Imports the Context class for accessing application-specific resources and classes
+import android.net.ConnectivityManager // Imports the ConnectivityManager class for checking network connectivity
+import android.net.NetworkCapabilities // Imports the NetworkCapabilities class for checking network capabilities
 import android.os.Bundle // Imports the Bundle class for saving instance state
 import android.widget.Toast // Imports the Toast class for showing short messages
 import androidx.activity.enableEdgeToEdge // Imports the enableEdgeToEdge function for enabling edge-to-edge display
@@ -29,6 +32,13 @@ class EditNote : AppCompatActivity() { // Defines the EditNote activity, which i
         auth = FirebaseAuth.getInstance() // Initializes the FirebaseAuth instance
 
         val noteId = intent.getStringExtra("noteId") // Gets the note ID from the intent extras
+
+        if (noteId.isNullOrEmpty()) { // If the note ID is null or empty, it means there was an error passing the data.
+            Toast.makeText(this, "Error: Note ID not found.", Toast.LENGTH_SHORT).show() // Show an error message.
+            finish() // Finish the activity.
+            return // Stop further execution of the method.
+        }
+
         val noteTitle = intent.getStringExtra("noteTitle") // Gets the note title from the intent extras
         val noteDescription = intent.getStringExtra("noteDescription") // Gets the note description from the intent extras
 
@@ -36,12 +46,14 @@ class EditNote : AppCompatActivity() { // Defines the EditNote activity, which i
         binding.editTextDescription.setText(noteDescription) // Sets the text of the description EditText to the note's description
 
         binding.updateNoteButton.setOnClickListener { // Sets an OnClickListener for the update note button
-            val newTitle = binding.editTextTitle.text.toString() // Gets the updated text from the title EditText and converts it to a string
-            val newDescription = binding.editTextDescription.text.toString() // Gets the updated text from the description EditText and converts it to a string
-            val newDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date()) // Gets the current date and formats it as "dd-MM-yyyy"
+            if (isNetworkAvailable()) { // Checks if a network connection is available
+                val newTitle = binding.editTextTitle.text.toString() // Gets the updated text from the title EditText and converts it to a string
+                val newDescription = binding.editTextDescription.text.toString() // Gets the updated text from the description EditText and converts it to a string
+                val newDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date()) // Gets the current date and formats it as "dd-MM-yyyy"
 
-            if (noteId != null) { // Checks if the note ID is not null
                 updateNoteInDatabase(noteId, newTitle, newDescription, newDate) // Calls the function to update the note in the database
+            } else { // If no network connection is available
+                Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show() // Shows a toast message indicating that there is no internet connection
             }
         }
     }
@@ -66,6 +78,18 @@ class EditNote : AppCompatActivity() { // Defines the EditNote activity, which i
                         Toast.makeText(this, "Failed to Update Note", Toast.LENGTH_SHORT).show() // Shows a toast message indicating that the note failed to update
                     }
                 }
+        }
+    }
+
+    private fun isNetworkAvailable(): Boolean { // Defines a function to check for an active internet connection
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager // Gets an instance of the ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetwork ?: return false // Gets the currently active network, or returns false if there is none
+        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false // Gets the capabilities of the active network, or returns false if they cannot be determined
+        return when { // Returns true if the network has any of the following transport types
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true // The network is a Wi-Fi network
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true // The network is a cellular network
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true // The network is an Ethernet network
+            else -> false // The network does not have any of the supported transport types
         }
     }
 }

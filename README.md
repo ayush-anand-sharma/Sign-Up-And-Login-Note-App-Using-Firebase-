@@ -23,7 +23,7 @@ A secure and real-time Android Note-Taking application built with Kotlin and Fir
 
 • Read Notes: View a list of all your saved notes in a clean RecyclerView interface.
 
-• Update Notes: Edit existing notes via a pop-up dialog.
+• Update Notes: Edit existing notes.
 
 • Delete Notes: Remove unwanted notes directly from the list.
 
