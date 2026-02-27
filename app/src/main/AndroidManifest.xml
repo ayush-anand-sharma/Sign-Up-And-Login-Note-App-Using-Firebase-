@@ -15,28 +15,22 @@
         android:theme="@style/Theme.SignUpAndLoginUsingFirebase">
         <activity
             android:name="com.ayushcodes.signupandloginusingfirebase.AddNote"
-            android:exported="true"
-            android:theme="@style/SplashApi" />
+            android:exported="true"/>
         <activity
             android:name="com.ayushcodes.signupandloginusingfirebase.EditNote"
-            android:exported="true"
-            android:theme="@style/SplashApi" />
+            android:exported="true"/>
         <activity
             android:name="com.ayushcodes.signupandloginusingfirebase.ForgetPassword"
-            android:exported="true"
-            android:theme="@style/SplashApi" />
+            android:exported="true"/>
         <activity
             android:name="com.ayushcodes.signupandloginusingfirebase.MainActivity"
-            android:exported="true"
-            android:theme="@style/SplashApi" />
+            android:exported="true"/>
         <activity
             android:name="com.ayushcodes.signupandloginusingfirebase.SignUpPage"
-            android:exported="true"
-            android:theme="@style/SplashApi" />
+            android:exported="true"/>
         <activity
             android:name="com.ayushcodes.signupandloginusingfirebase.SignInPage"
-            android:exported="true"
-            android:theme="@style/SplashApi" />
+            android:exported="true"/>
         <activity
             android:name="com.ayushcodes.signupandloginusingfirebase.WelcomeScreen"
             android:exported="true"

@@ -27,6 +27,11 @@ class NoteAdapter(private var notes: List<NoteItem>, private val itemClickListen
         notifyDataSetChanged() // Notifies the adapter that the data has changed, so it can refresh the UI
     }
 
+    // Finds and returns a note by its ID from the current list of notes.
+    fun getNote(noteID: String): NoteItem? { // Defines a function to get a note by its ID.
+        return notes.find { it.noteID == noteID } // Returns the first note that matches the provided noteID, or null if not found.
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder // Overrides the onCreateViewHolder function to create a new view holder
     {
        val binding = NotesItemBinding.inflate(LayoutInflater.from(parent.context), parent, false) // Inflates the notes_item.xml layout using view binding

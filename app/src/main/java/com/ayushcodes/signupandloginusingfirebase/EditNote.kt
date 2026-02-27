@@ -4,6 +4,8 @@ import android.content.Context // Imports the Context class for accessing applic
 import android.net.ConnectivityManager // Imports the ConnectivityManager class for checking network connectivity
 import android.net.NetworkCapabilities // Imports the NetworkCapabilities class for checking network capabilities
 import android.os.Bundle // Imports the Bundle class for saving instance state
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast // Imports the Toast class for showing short messages
 import androidx.activity.enableEdgeToEdge // Imports the enableEdgeToEdge function for enabling edge-to-edge display
 import androidx.appcompat.app.AppCompatActivity // Imports the AppCompatActivity class for compatibility features
@@ -31,6 +33,10 @@ class EditNote : AppCompatActivity() { // Defines the EditNote activity, which i
         databaseReference = FirebaseDatabase.getInstance().reference // Initializes the database reference to the root of the Firebase Realtime Database
         auth = FirebaseAuth.getInstance() // Initializes the FirebaseAuth instance
 
+        binding.backImagebutton.setOnClickListener { // Set a click listener for the back image button
+            finish() // Finishing the current activity to go back to the previous screen
+        }
+
         val noteId = intent.getStringExtra("noteId") // Gets the note ID from the intent extras
 
         if (noteId.isNullOrEmpty()) { // If the note ID is null or empty, it means there was an error passing the data.
@@ -42,8 +48,8 @@ class EditNote : AppCompatActivity() { // Defines the EditNote activity, which i
         val noteTitle = intent.getStringExtra("noteTitle") // Gets the note title from the intent extras
         val noteDescription = intent.getStringExtra("noteDescription") // Gets the note description from the intent extras
 
-        binding.editTextTitle.setText(noteTitle) // Sets the text of the title EditText to the note's title
-        binding.editTextDescription.setText(noteDescription) // Sets the text of the description EditText to the note's description
+        binding.editTextTitle.setText(noteTitle) // Sets the text of the title EditText to the note's title so the user can see the existing title
+        binding.editTextDescription.setText(noteDescription) // Sets the text of the description EditText to the note's description so the user can see the existing description
 
         binding.updateNoteButton.setOnClickListener { // Sets an OnClickListener for the update note button
             if (isNetworkAvailable()) { // Checks if a network connection is available
@@ -51,6 +57,7 @@ class EditNote : AppCompatActivity() { // Defines the EditNote activity, which i
                 val newDescription = binding.editTextDescription.text.toString() // Gets the updated text from the description EditText and converts it to a string
                 val newDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date()) // Gets the current date and formats it as "dd-MM-yyyy"
 
+                showProgressBar(true) // Show the progress bar before starting the update process.
                 updateNoteInDatabase(noteId, newTitle, newDescription, newDate) // Calls the function to update the note in the database
             } else { // If no network connection is available
                 Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show() // Shows a toast message indicating that there is no internet connection
@@ -71,6 +78,7 @@ class EditNote : AppCompatActivity() { // Defines the EditNote activity, which i
 
             noteReference.updateChildren(updatedNote) // Updates the children of the note reference with the new values
                 .addOnCompleteListener { task -> // Adds a listener that is called when the operation is complete
+                    showProgressBar(false) // Hide the progress bar once the update operation is complete.
                     if (task.isSuccessful) { // If the note was updated successfully
                         Toast.makeText(this, "Note Updated Successfully", Toast.LENGTH_SHORT).show() // Shows a toast message indicating that the note was updated successfully
                         finish() // Finishes the activity
@@ -79,6 +87,26 @@ class EditNote : AppCompatActivity() { // Defines the EditNote activity, which i
                     }
                 }
         }
+    }
+
+    // This function shows or hides the progress bar and dim overlay.
+    private fun showProgressBar(show: Boolean) { // Defines a function to show or hide the progress bar.
+        if (show) { // If the `show` parameter is true,
+            binding.progressBar.visibility = View.VISIBLE // Makes the progress bar visible.
+            binding.dimOverlay.visibility = View.VISIBLE // Makes the dim overlay visible.
+            binding.updateNoteButton.isEnabled = false // Disables the update note button to prevent multiple clicks.
+            hideKeyboard() // Hides the keyboard.
+        } else { // If the `show` parameter is false,
+            binding.progressBar.visibility = View.GONE // Hides the progress bar.
+            binding.dimOverlay.visibility = View.GONE // Hides the dim overlay.
+            binding.updateNoteButton.isEnabled = true // Enables the update note button again.
+        }
+    }
+
+    // This function hides the soft keyboard.
+    private fun hideKeyboard() { // Defines a function to hide the keyboard.
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager // Gets an instance of the InputMethodManager.
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0) // Hides the keyboard from the currently focused window.
     }
 
     private fun isNetworkAvailable(): Boolean { // Defines a function to check for an active internet connection

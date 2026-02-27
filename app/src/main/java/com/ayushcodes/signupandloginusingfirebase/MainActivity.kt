@@ -6,6 +6,8 @@ import android.net.ConnectivityManager // Imports the ConnectivityManager class 
 import android.net.NetworkCapabilities // Imports the NetworkCapabilities class for checking network capabilities
 import android.os.Bundle // Imports the Bundle class for saving instance state
 import android.view.LayoutInflater // Imports the LayoutInflater class to inflate layout XML files
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button // Imports the Button class for creating a button
 import android.widget.TextView // Imports the TextView class for displaying text
 import android.widget.Toast // Imports the Toast class for showing short messages
@@ -47,6 +49,8 @@ class MainActivity : AppCompatActivity(), NoteAdapter.OnitemClickListener { // D
         binding.notesRecyclerView.layoutManager = LinearLayoutManager(this) // Sets the layout manager for the RecyclerView
         binding.notesRecyclerView.adapter = noteAdapter // Sets the adapter for the RecyclerView
 
+        showProgressBar(true) // Show progress bar while loading notes
+
         val currentUser = auth.currentUser // Gets the currently signed-in user
         currentUser?.let { user -> // If a user is signed in
             noteReference = databaseReference.child("Users").child(user.uid).child("Notes") // Gets a reference to the "Notes" node for the current user
@@ -61,10 +65,12 @@ class MainActivity : AppCompatActivity(), NoteAdapter.OnitemClickListener { // D
                     }
                     noteList.sortByDescending { it.isPinned } // Sorts the list to show pinned notes first
                     noteAdapter.updateData(noteList) // Updates the data in the adapter with the new list of notes
+                    showProgressBar(false) // Hide progress bar after loading notes
                 }
 
                 override fun onCancelled(error: DatabaseError) { // Overrides the onCancelled method, which is called when the listener is cancelled
                     Toast.makeText(this@MainActivity, "Failed to load notes: ${error.message}", Toast.LENGTH_SHORT).show() // Shows a toast message indicating that the notes failed to load
+                    showProgressBar(false) // Hide progress bar on error
                 }
             }
             noteReference.addValueEventListener(valueEventListener) // Adds the listener for changes to the data at the note reference
@@ -112,6 +118,7 @@ class MainActivity : AppCompatActivity(), NoteAdapter.OnitemClickListener { // D
                 .setMessage("Are you sure you want to sign out?") // Sets the message of the dialog
                 .setPositiveButton("Sign Out") { _, _ -> // Sets the positive button and its click listener
                     if (isNetworkAvailable()) { // Checks if a network connection is available
+                        showProgressBar(true) // Show progress bar before signing out.
                         if (::noteReference.isInitialized && ::valueEventListener.isInitialized) { // Checks if the note reference and value event listener are initialized
                             noteReference.removeEventListener(valueEventListener) // Removes the value event listener from the note reference
                         }
@@ -133,7 +140,10 @@ class MainActivity : AppCompatActivity(), NoteAdapter.OnitemClickListener { // D
 
     override fun onEditClick(noteID: String) { // Overrides the onEditClick method from the OnitemClickListener interface
         val intent = Intent(this, EditNote::class.java) // Creates an Intent to start the EditNote
+        val note = noteAdapter.getNote(noteID) // Retrieves the note from the adapter using its ID.
         intent.putExtra("noteId", noteID) // Puts the noteID as an extra in the Intent
+        intent.putExtra("noteTitle", note?.title) // Puts the noteTitle as an extra in the Intent, making it available for the EditNote activity.
+        intent.putExtra("noteDescription", note?.description) // Puts the noteDescription as an extra in the Intent, making it available for the EditNote activity.
         startActivity(intent) // Starts the EditNote
     }
 
@@ -163,6 +173,26 @@ class MainActivity : AppCompatActivity(), NoteAdapter.OnitemClickListener { // D
                 }
             }
         }
+    }
+
+    // This function shows or hides the progress bar and dim overlay.
+    private fun showProgressBar(show: Boolean) { // Defines a function to show or hide the progress bar.
+        if (show) { // If the `show` parameter is true,
+            binding.progressBar.visibility = View.VISIBLE // Makes the progress bar visible.
+            binding.dimOverlay.visibility = View.VISIBLE // Makes the dim overlay visible.
+            binding.addNoteButton.isEnabled = false // Disables the add note button to prevent user interaction.
+            hideKeyboard() // Hides the keyboard.
+        } else { // If the `show` parameter is false,
+            binding.progressBar.visibility = View.GONE // Hides the progress bar.
+            binding.dimOverlay.visibility = View.GONE // Hides the dim overlay.
+            binding.addNoteButton.isEnabled = true // Enables the add note button again.
+        }
+    }
+
+    // This function hides the soft keyboard.
+    private fun hideKeyboard() { // Defines a function to hide the keyboard.
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager // Gets an instance of the InputMethodManager.
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0) // Hides the keyboard from the currently focused window.
     }
 
     private fun isNetworkAvailable(): Boolean { // Defines a function to check for an active internet connection

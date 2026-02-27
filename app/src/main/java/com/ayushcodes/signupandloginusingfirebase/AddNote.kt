@@ -1,6 +1,9 @@
 package com.ayushcodes.signupandloginusingfirebase // Declares the package name for the class
 
+import android.content.Context
 import android.os.Bundle // Imports the Bundle class for saving instance state
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast // Imports the Toast class for showing short messages
 import androidx.activity.enableEdgeToEdge // Imports the enableEdgeToEdge function for enabling edge-to-edge display
 import androidx.appcompat.app.AppCompatActivity // Imports the AppCompatActivity class for compatibility features
@@ -46,6 +49,7 @@ class AddNote : AppCompatActivity() { // Defines the AddNote activity, which inh
             } else { // If either the title or description is not empty
                 val currentUser = auth.currentUser // Gets the currently signed-in user
                 currentUser?.let { user -> // If a user is signed in
+                    showProgressBar(true) // Show the progress bar before starting the save process.
                     // Generate a unique key for the new note.
                     val noteKey = databaseReference.child("Users").child(user.uid).child("Notes").push().key
 
@@ -57,6 +61,7 @@ class AddNote : AppCompatActivity() { // Defines the AddNote activity, which inh
                         databaseReference.child("Users").child(user.uid).child("Notes").child(noteKey)
                             .setValue(noteItem) // Set the value of the new note to the NoteItem object.
                             .addOnCompleteListener { task -> // Adds a listener that is called when the operation is complete
+                                showProgressBar(false) // Hide the progress bar once the save operation is complete.
                                 if (task.isSuccessful) { // If the note was saved successfully
                                     Toast.makeText(this, "Note Saved Successfully", Toast.LENGTH_SHORT).show() // Shows a toast message indicating success.
                                     finish() // Finishes the activity.
@@ -65,11 +70,32 @@ class AddNote : AppCompatActivity() { // Defines the AddNote activity, which inh
                                 }
                             }
                     } else {
+                        showProgressBar(false) // Hide the progress bar if key generation fails.
                         // If for some reason the key is null, inform the user.
                         Toast.makeText(this, "Failed to generate a unique ID for the note.", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
         }
+    }
+
+    // This function shows or hides the progress bar and dim overlay.
+    private fun showProgressBar(show: Boolean) { // Defines a function to show or hide the progress bar.
+        if (show) { // If the `show` parameter is true,
+            binding.progressBar.visibility = View.VISIBLE // Makes the progress bar visible.
+            binding.dimOverlay.visibility = View.VISIBLE // Makes the dim overlay visible.
+            binding.saveNoteButton.isEnabled = false // Disables the save note button to prevent multiple clicks.
+            hideKeyboard() // Hides the keyboard.
+        } else { // If the `show` parameter is false,
+            binding.progressBar.visibility = View.GONE // Hides the progress bar.
+            binding.dimOverlay.visibility = View.GONE // Hides the dim overlay.
+            binding.saveNoteButton.isEnabled = true // Enables the save note button again.
+        }
+    }
+
+    // This function hides the soft keyboard.
+    private fun hideKeyboard() { // Defines a function to hide the keyboard.
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager // Gets an instance of the InputMethodManager.
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0) // Hides the keyboard from the currently focused window.
     }
 }
