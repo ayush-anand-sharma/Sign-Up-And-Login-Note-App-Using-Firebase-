@@ -48,8 +48,7 @@ class ForgetPassword : AppCompatActivity() { // Defines the ForgetPassword class
                 Toast.makeText(this, "Please enter your email", Toast.LENGTH_SHORT).show() // shows a toast message.
             } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) { // If the email format is invalid,
                 Toast.makeText(this, "Please enter a valid email", Toast.LENGTH_SHORT).show() // shows a toast message.
-            } else { // Otherwise,
-                // Show the confirmation dialog directly without showing the progress bar first.
+            } else { // Otherwise, // Show the confirmation dialog directly without showing the progress bar first.
                 showPasswordResetDialog(email)
             }
         }
