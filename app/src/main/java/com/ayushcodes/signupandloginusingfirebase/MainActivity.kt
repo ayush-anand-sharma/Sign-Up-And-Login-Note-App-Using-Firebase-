@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity(), NoteAdapter.OnitemClickListener { // D
                             noteList.add(it) // Adds the note to the list
                         }
                     }
-                    noteList.sortByDescending { it.isPinned } // Sorts the list to show pinned notes first
+                    noteList.sortByDescending { it.pinned } // Sorts the list to show pinned notes first
                     noteAdapter.updateData(noteList) // Updates the data in the adapter with the new list of notes
                     showProgressBar(false) // Hide progress bar after loading notes
                 }
@@ -164,8 +164,15 @@ class MainActivity : AppCompatActivity(), NoteAdapter.OnitemClickListener { // D
     override fun onPinClick(noteID: String, isPinned: Boolean) { // Overrides the onPinClick method from the OnitemClickListener interface
         val currentUser = auth.currentUser // Gets the currently signed-in user
         currentUser?.let { user -> // If a user is signed in
-            val noteReference = databaseReference.child("Users").child(user.uid).child("Notes").child(noteID).child("isPinned") // Gets a reference to the isPinned property of the specific note
-            noteReference.setValue(isPinned).addOnCompleteListener { task -> // Sets the value of the isPinned property in the database
+            // Correctly reference the 'pinned' field within the specific note.
+            val noteBaseRef = databaseReference.child("Users").child(user.uid).child("Notes").child(noteID) 
+            
+            // Explicitly update 'pinned' and remove 'isPinned' to maintain a clean database structure
+            val updates = HashMap<String, Any?>()
+            updates["pinned"] = isPinned
+            updates["isPinned"] = null // This removes the field from Firebase
+
+            noteBaseRef.updateChildren(updates).addOnCompleteListener { task ->
                 if (task.isSuccessful) { // If the operation is successful
                     Toast.makeText(this, if (isPinned) "Note Pinned" else "Note Unpinned", Toast.LENGTH_SHORT).show() // Shows a toast message indicating that the note was pinned or unpinned
                 } else { // If the operation fails

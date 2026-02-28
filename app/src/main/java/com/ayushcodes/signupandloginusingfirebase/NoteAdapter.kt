@@ -4,11 +4,13 @@ import android.annotation.SuppressLint // Imports the SuppressLint annotation to
 import android.app.AlertDialog // Imports the AlertDialog class to display a dialog message with positive and negative buttons
 import android.content.Context // Imports the Context class for accessing application-specific resources and classes
 import android.content.Intent // Imports the Intent class for starting new activities
+import android.graphics.Color // Imports Color class for setting tint
 import android.net.ConnectivityManager // Imports the ConnectivityManager class for checking network connectivity
 import android.net.NetworkCapabilities // Imports the NetworkCapabilities class for checking network capabilities
 import android.view.LayoutInflater // Imports the LayoutInflater class to inflate layout XML files
 import android.view.ViewGroup // Imports the ViewGroup class, which is a container for views
 import android.widget.Toast // Imports the Toast class for showing short messages
+import androidx.core.content.ContextCompat // Imports ContextCompat for resource handling
 import androidx.recyclerview.widget.RecyclerView // Imports the RecyclerView class for displaying lists of items
 import com.ayushcodes.signupandloginusingfirebase.databinding.NotesItemBinding // Imports the generated binding class for the notes_item.xml layout
 
@@ -51,44 +53,37 @@ class NoteAdapter(private var notes: List<NoteItem>, private val itemClickListen
 
         // Set OnClickListener for the edit button
         holder.binding.editButton.setOnClickListener { // Sets a click listener for the edit button
-            // Check for network connection before proceeding
             if (isNetworkAvailable(holder.itemView.context)) { // Checks if a network connection is available
                 itemClickListener.onEditClick(note.noteID)
             } else { // If no network connection is available
-                // If network is not available, show a toast message
-                Toast.makeText(holder.itemView.context, "No internet connection", Toast.LENGTH_SHORT).show() // Shows a toast message indicating that there is no internet connection
+                Toast.makeText(holder.itemView.context, "No internet connection", Toast.LENGTH_SHORT).show() // Shows a toast message
             }
         }
 
         // Set OnClickListener for the delete button
         holder.binding.deleteButton.setOnClickListener { // Sets a click listener for the delete button
-            // First, check for network connection.
             if (isNetworkAvailable(holder.itemView.context)) { // Checks if a network connection is available
-                // If network is available, then show the confirmation dialog.
                 AlertDialog.Builder(holder.itemView.context) // Creates a new AlertDialog.Builder
                     .setTitle("Delete Note") // Sets the title of the dialog
                     .setMessage("Are you sure you want to delete this note?") // Sets the message of the dialog
                     .setPositiveButton("Delete") { _, _ -> // Sets the positive button of the dialog
-                        // When delete is confirmed, call the delete function
-                        itemClickListener.onDeleteClick(note.noteID) // Calls the onDeleteClick function of the item click listener
+                        itemClickListener.onDeleteClick(note.noteID) // Calls the onDeleteClick function
                     }
                     .setNegativeButton("Cancel", null) // Sets the negative button of the dialog
                     .show() // Shows the dialog
             } else { // If no network connection is available
-                // If network is not available, show the toast and do nothing else.
-                Toast.makeText(holder.itemView.context, "No internet connection", Toast.LENGTH_SHORT).show() // Shows a toast message indicating that there is no internet connection
+                Toast.makeText(holder.itemView.context, "No internet connection", Toast.LENGTH_SHORT).show() // Shows a toast message
             }
         }
 
         // Set OnClickListener for the pin button
         holder.binding.pinButton.setOnClickListener { // Sets a click listener for the pin button
-            // Check for network connection before proceeding
             if (isNetworkAvailable(holder.itemView.context)) { // Checks if a network connection is available
-                // If network is available, toggle the pinned state
-                itemClickListener.onPinClick(note.noteID, !note.isPinned) // Calls the onPinClick function of the item click listener
+                // Toggle the state and notify listener
+                val newPinnedStatus = !note.pinned
+                itemClickListener.onPinClick(note.noteID, newPinnedStatus)
             } else { // If no network connection is available
-                // If network is not available, show a toast message
-                Toast.makeText(holder.itemView.context, "No internet connection", Toast.LENGTH_SHORT).show() // Shows a toast message indicating that there is no internet connection
+                Toast.makeText(holder.itemView.context, "No internet connection", Toast.LENGTH_SHORT).show() // Shows a toast message
             }
         }
     }
@@ -110,7 +105,7 @@ class NoteAdapter(private var notes: List<NoteItem>, private val itemClickListen
         }
     }
 
-    class NoteViewHolder(val binding: NotesItemBinding) : RecyclerView.ViewHolder(binding.root) // Defines the NoteViewHolder class, which holds the views for a single item in the list
+    class NoteViewHolder(val binding: NotesItemBinding) : RecyclerView.ViewHolder(binding.root) // Defines the NoteViewHolder class
     {
         fun bind(note: NoteItem) // Defines a function to bind note data to the views
         {
@@ -118,11 +113,15 @@ class NoteAdapter(private var notes: List<NoteItem>, private val itemClickListen
             binding.descriptionTextView.text = note.description // Sets the text of the description text view to the note's description
             binding.dateTextView.text = note.date // Sets the text of the date text view to the note's date
 
-            // Set the pin icon based on the isPinned state
-            if (note.isPinned) { // Checks if the note is pinned
-                binding.pinButton.setImageResource(android.R.drawable.btn_star_big_on) // Sets the pin icon to the "on" state
-            } else { // If the note is not pinned
-                binding.pinButton.setImageResource(android.R.drawable.btn_star_big_off) // Sets the pin icon to the "off" state
+            // Appearance Logic: Set icon and color based on pinned state
+            if (note.pinned) {
+                // If pinned: use filled star and gold/yellow color
+                binding.pinButton.setImageResource(android.R.drawable.btn_star_big_on)
+                binding.pinButton.setColorFilter(Color.parseColor("#FFD700")) // Gold color
+            } else {
+                // If not pinned: use empty star and white color
+                binding.pinButton.setImageResource(android.R.drawable.btn_star_big_off)
+                binding.pinButton.setColorFilter(Color.WHITE)
             }
         }
     }

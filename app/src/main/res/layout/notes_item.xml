@@ -47,8 +47,7 @@
                 android:src="@android:drawable/btn_star"
                 app:layout_constraintBottom_toBottomOf="@+id/titleTextView"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@android:color/white" />
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
