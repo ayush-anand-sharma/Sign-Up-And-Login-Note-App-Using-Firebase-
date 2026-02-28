@@ -19,6 +19,7 @@ class NoteAdapter(private var notes: List<NoteItem>, private val itemClickListen
         fun onEditClick(noteID: String) // Declares a function to handle edit button clicks
         fun onDeleteClick(noteID: String) // Declares a function to handle delete button clicks
         fun onPinClick(noteID: String, isPinned: Boolean) // Declares a function to handle pin button clicks
+        fun onNoteClick(note: NoteItem) // Declares a function to handle clicks on the entire note item
     }
 
     @SuppressLint("NotifyDataSetChanged") // Suppresses the lint warning for using notifyDataSetChanged()
@@ -42,6 +43,11 @@ class NoteAdapter(private var notes: List<NoteItem>, private val itemClickListen
     {
         val note = notes[position] // Gets the note at the current position
         holder.bind(note) // Binds the note data to the view holder
+
+        // Sets a click listener for the entire note item
+        holder.itemView.setOnClickListener {
+            itemClickListener.onNoteClick(note) // Calls the onNoteClick function of the item click listener
+        }
 
         // Set OnClickListener for the edit button
         holder.binding.editButton.setOnClickListener { // Sets a click listener for the edit button

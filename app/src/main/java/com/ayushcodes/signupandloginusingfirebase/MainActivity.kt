@@ -175,6 +175,14 @@ class MainActivity : AppCompatActivity(), NoteAdapter.OnitemClickListener { // D
         }
     }
 
+    override fun onNoteClick(note: NoteItem) { // Overrides the onNoteClick method from the OnitemClickListener interface
+        val intent = Intent(this, ReadNote::class.java) // Creates an Intent to start the ReadNote activity
+        intent.putExtra("noteTitle", note.title) // Puts the note title as an extra in the Intent
+        intent.putExtra("noteDescription", note.description) // Puts the note description as an extra in the Intent
+        intent.putExtra("noteDate", note.date) // Puts the note date as an extra in the Intent
+        startActivity(intent) // Starts the ReadNote activity
+    }
+
     // This function shows or hides the progress bar and dim overlay.
     private fun showProgressBar(show: Boolean) { // Defines a function to show or hide the progress bar.
         if (show) { // If the `show` parameter is true,
