@@ -19,6 +19,7 @@ import com.google.firebase.database.DatabaseError // Imports DatabaseError for h
 import com.google.firebase.database.FirebaseDatabase // Imports FirebaseDatabase for accessing the Realtime Database.
 import com.google.firebase.database.ValueEventListener // Imports ValueEventListener for listening to data changes.
 
+@Suppress("DEPRECATION")
 class ForgetPassword : AppCompatActivity() { // Defines the ForgetPassword class, which inherits from AppCompatActivity.
     private val binding: ActivityForgetPasswordBinding by lazy { // Lazily initializes the view binding for the activity.
         ActivityForgetPasswordBinding.inflate(layoutInflater) // Inflates the layout for this activity.
