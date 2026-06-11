@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "323079493025-paktorb4f565ie1u0rqtoc9la9m130t8.apps.googleusercontent.com",
+          "client_id": "323079493025-pjnslif0ars9n1pv2bi22m2u2ohlvq3j.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.ayushcodes.signupandloginusingfirebase",
-            "certificate_hash": "0522d3ce0538fffcd93ae70feff149e44b601af0"
+            "certificate_hash": "3a1e7c2e7c4a584961e897b481ee8eee68473e01"
           }
         },
         {
